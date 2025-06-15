@@ -49,19 +49,19 @@ The goal is to help people and authorities — stay informed and connected throu
 ---
 ## ⚙️Setup
 
-# 1. Deploy Infra
+1. Deploy Infra
 aws cloudformation create-stack \
   --stack-name incident-reporter-stack \
   --template-body file://cloudformation-template.json \
 
-# 2. SSH into EC2
+2. SSH into EC2
 ssh -i your_accesskey.pem ec2-user@ ec2-public-ip
 
-# 3. App Setup
+3. App Setup
 sudo yum install python3 git -y
 python3 -m venv venv && source venv/bin/activate
 
-# 4. Run the Flask app
+4. Run the Flask app
 python app.py
 
 
