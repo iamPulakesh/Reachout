@@ -39,12 +39,6 @@ The goal is to help people and authorities — stay informed and connected throu
 
 ---
 
-## 🔐 Security Features
-- IAM policies restrict EC2 access to only needed S3 buckets.
-- RDS security group allows access only from EC2 within the VPC.
-
----
-
 ## 📦 Deployment Instructions
 
 1. Launch your stack using the `cloudformation-template.yaml`.
@@ -53,6 +47,23 @@ The goal is to help people and authorities — stay informed and connected throu
 4. Ensure the EC2 instance has proper IAM role and VPC settings.
 
 ---
+## ⚙️Setup
+
+# 1. Deploy Infra
+aws cloudformation create-stack \
+  --stack-name incident-reporter-stack \
+  --template-body file://cloudformation-template.json \
+
+# 2. SSH into EC2
+ssh -i your_accesskey.pem ec2-user@ ec2-public-ip
+
+# 3. App Setup
+sudo yum install python3 git -y
+python3 -m venv venv && source venv/bin/activate
+
+# 4. Run the Flask app
+python app.py
+
 
 ## 📃 License
 
