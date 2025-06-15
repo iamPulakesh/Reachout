@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart City Incident Reporting</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      max-width: 600px;
+      background: #fff;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      margin-top: 20px;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #map {
+      margin-top: 15px;
+      height: 400px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .note {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 5px;
+    }
+  </style>
+
+  <!-- Google Maps API -->
+  <script src= YOUR_GOOGLE_MAPS_API></script>
+  <script>
+    let map, marker;
+
+    function initMap() {
+      const defaultLocation = { lat: 35.67, lng: 139.65 }; //change accordingly
+
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: defaultLocation,
+        zoom: 12,
+      });
+
+      map.addListener("click", (e) => {
+        if (marker) marker.setMap(null);
+        marker = new google.maps.Marker({
+          position: e.latLng,
+          map: map,
+        });
+
+        document.getElementById("lat").value = e.latLng.lat();
+        document.getElementById("lng").value = e.latLng.lng();
+      });
+    }
+  </script>
+</head>
+<body onload="initMap()">
+
+  <h1>Report an Incident</h1>
+
+  <form method="POST" enctype="multipart/form-data">
+    <label for="type">Incident Type:</label>
+    <input type="text" name="type" required placeholder="e.g., Fire, Accident, Power Outage">
+
+    <label for="image">Incident Image:</label>
+    <input type="file" name="image" required>
+
+    <label for="address">Address:</label>
+    <input type="text" name="address" required placeholder="e.g., 15-9, Minami Aoyama 1-chome, Minato-ku, Tokyo, 100-0000, Japan">
+
+
+    <label>Click on the Map to Tag Location:</label>
+    <div id="map"></div>
+    <div class="note">Tip: Zoom in and click the exact location of the incident.</div>
+
+    <input type="hidden" id="lat" name="lat">
+    <input type="hidden" id="lng" name="lng">
+
+    <button type="submit" style="background-color:#4CAF50;">Submit</button>
+  </form>
+
+  <br><br>
+  <form action="/all-reports" method="get">
+    <button type="submit" style="background-color:#FFFF00; ">All Reported Incidents</button>
+
+  </form>
+
+</body>
+</html>
