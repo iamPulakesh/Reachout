@@ -55,14 +55,13 @@ aws cloudformation create-stack \
   --template-body file://cloudformation-template.json \
 
 2. SSH into EC2
-ssh -i your_accesskey.pem ec2-user@ ec2-public-ip
+`ssh -i your_accesskey.pem ec2-user@ ec2-public-ip`
 
 3. App Setup
-sudo yum install python3 git -y
-python3 -m venv venv && source venv/bin/activate
+`sudo yum install python3 git -y`
 
 4. Run the Flask app
-python app.py
+`python3 app.py`
 
 
 ## 📃 License
