@@ -51,8 +51,8 @@ The goal is to help people and authorities — stay informed and connected throu
 
 1. Deploy Infra
 aws cloudformation create-stack \
-  --stack-name incident-reporter-stack \
-  --template-body file://cloudformation-template.json \
+  - stack-name incident-reporter-stack \
+  - template-body file://cloudformation-template.json \
 
 2. SSH into EC2
 `ssh -i your_accesskey.pem ec2-user@ ec2-public-ip`
