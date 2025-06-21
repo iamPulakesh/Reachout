@@ -1,4 +1,4 @@
-## 🧭 Overview
+## Overview
 
 UrbanShield is a Flask-based web application deployed on AWS that allows people to submit real-time reports of incidents such as accidents, disasters or safety concerns. The application supports image uploads, geolocation via Google Maps API and structured data storage.
 
@@ -6,18 +6,18 @@ The goal is to help people and authorities — stay informed and connected throu
 
 ---
 
-## 🚀 Features
+## Features
 
-- 📍 Submit reports with location, description, incident type and image
-- 🗺️ Google Maps API integration for accurate location tagging
-- 🌐 Public view to access all submitted reports
-- 🖼️ Uploaded images stored in Amazon S3
-- 💾 Data stored securely in Amazon RDS
-- ☁️ Deployed in a secure AWS VPC using EC2
+- Submit reports with location, description, incident type and image
+- Google Maps API integration for accurate location tagging
+- Public view to access all submitted reports
+- Uploaded images stored in Amazon S3
+- Data stored securely in Amazon RDS
+- Deployed in a secure AWS VPC using EC2
 
 ---
 
-## 🛠️ AWS Services Used
+## AWS Services Used
 
 | Service        | Purpose                                                 |
 |----------------|---------------------------------------------------------|
@@ -30,7 +30,7 @@ The goal is to help people and authorities — stay informed and connected throu
 
 ---
 
-## 🧪 How It Works
+## How It Works
 
 1. **User submits a report** with location, incident type, details and image(optional).
 2. **Google Maps API** fetches coordinates from the address.
@@ -39,7 +39,7 @@ The goal is to help people and authorities — stay informed and connected throu
 
 ---
 
-## 📦 Deployment Instructions
+## Deployment Instructions
 
 1. Launch your stack using the `cloudformation-template.yaml`.
 2. SSH into the EC2 instance and deploy the Flask app.
@@ -47,7 +47,7 @@ The goal is to help people and authorities — stay informed and connected throu
 4. Ensure the EC2 instance has proper IAM role and VPC settings.
 
 ---
-## ⚙️Setup
+## Setup
 
 1. Deploy Infra
 aws cloudformation create-stack \
@@ -63,10 +63,6 @@ aws cloudformation create-stack \
 4. Run the Flask app
 `python3 app.py`
 
-
-## 📃 License
-
-This project is open-source and available under the Apache 2.0 License.
 
 
 
