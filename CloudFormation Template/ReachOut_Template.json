@@ -1,8 +1,20 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Infra for Incident Reporting App",
+    "Description": "Infra for Reachout",
+    "Parameters": {
+        "DBUsername": {
+            "Type": "String",
+            "Description": "Username for the RDS instance"
+        },
+        "DBPassword": {
+            "Type": "String",
+            "Description": "Password for the RDS instance",
+            "NoEcho": true,
+            "MinLength": 5
+        }
+    },
     "Resources": {
-        "IncidentVPC": {
+        "ReachoutVPC": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
                 "CidrBlock": "10.0.0.0/16",
@@ -11,7 +23,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "IncidentVPC"
+                        "Value": "ReachoutVPC"
                     }
                 ]
             }
@@ -19,17 +31,13 @@
         "PublicSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "VpcId": {
-                    "Ref": "IncidentVPC"
-                },
+                "VpcId": { "Ref": "ReachoutVPC" },
                 "CidrBlock": "10.0.1.0/24",
                 "MapPublicIpOnLaunch": true,
                 "AvailabilityZone": {
                     "Fn::Select": [
                         0,
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             }
@@ -37,17 +45,13 @@
         "PrivateSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "VpcId": {
-                    "Ref": "IncidentVPC"
-                },
+                "VpcId": { "Ref": "ReachoutVPC" },
                 "CidrBlock": "10.0.2.0/24",
                 "MapPublicIpOnLaunch": false,
                 "AvailabilityZone": {
                     "Fn::Select": [
                         1,
-                        {
-                            "Fn::GetAZs": ""
-                        }
+                        { "Fn::GetAZs": "" }
                     ]
                 }
             }
@@ -58,43 +62,29 @@
         "AttachGateway": {
             "Type": "AWS::EC2::VPCGatewayAttachment",
             "Properties": {
-                "VpcId": {
-                    "Ref": "IncidentVPC"
-                },
-                "InternetGatewayId": {
-                    "Ref": "InternetGateway"
-                }
+                "VpcId": { "Ref": "ReachoutVPC" },
+                "InternetGatewayId": { "Ref": "InternetGateway" }
             }
         },
         "PublicRouteTable": {
             "Type": "AWS::EC2::RouteTable",
             "Properties": {
-                "VpcId": {
-                    "Ref": "IncidentVPC"
-                }
+                "VpcId": { "Ref": "ReachoutVPC" }
             }
         },
         "PublicRoute": {
             "Type": "AWS::EC2::Route",
             "Properties": {
-                "RouteTableId": {
-                    "Ref": "PublicRouteTable"
-                },
+                "RouteTableId": { "Ref": "PublicRouteTable" },
                 "DestinationCidrBlock": "0.0.0.0/0",
-                "GatewayId": {
-                    "Ref": "InternetGateway"
-                }
+                "GatewayId": { "Ref": "InternetGateway" }
             }
         },
         "PublicSubnetRouteTableAssociation": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
-                "SubnetId": {
-                    "Ref": "PublicSubnet"
-                },
-                "RouteTableId": {
-                    "Ref": "PublicRouteTable"
-                }
+                "SubnetId": { "Ref": "PublicSubnet" },
+                "RouteTableId": { "Ref": "PublicRouteTable" }
             }
         },
         "WebServerInstance": {
@@ -102,19 +92,13 @@
             "Properties": {
                 "InstanceType": "t2.micro",
                 "ImageId": "ami-0af9569868786b23a",
-                "SubnetId": {
-                    "Ref": "PublicSubnet"
-                },
+                "SubnetId": { "Ref": "PublicSubnet" },
                 "KeyName": "smartcitykey",
-                "SecurityGroupIds": [
-                    {
-                        "Ref": "EC2SecurityGroup"
-                    }
-                ],
+                "SecurityGroupIds": [ { "Ref": "EC2SecurityGroup" } ],
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "WebServer"
+                        "Value": "Reachout_app"
                     }
                 ]
             }
@@ -123,9 +107,7 @@
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Enable SSH and HTTP",
-                "VpcId": {
-                    "Ref": "IncidentVPC"
-                },
+                "VpcId": { "Ref": "ReachoutVPC" },
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
@@ -142,11 +124,11 @@
                 ]
             }
         },
-        "IncidentBucket": {
+        "ReachoutBucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
                 "BucketName": {
-                    "Fn::Sub": "incident-images-${AWS::AccountId}"
+                    "Fn::Sub": "reachout-images"
                 },
                 "AccessControl": "Private"
             }
@@ -155,17 +137,13 @@
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Allow MySQL access from EC2 only",
-                "VpcId": {
-                    "Ref": "IncidentVPC"
-                },
+                "VpcId": { "Ref": "ReachoutVPC" },
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
                         "FromPort": 3306,
                         "ToPort": 3306,
-                        "SourceSecurityGroupId": {
-                            "Ref": "EC2SecurityGroup"
-                        }
+                        "SourceSecurityGroupId": { "Ref": "EC2SecurityGroup" }
                     }
                 ]
             }
@@ -175,36 +153,28 @@
             "Properties": {
                 "DBSubnetGroupDescription": "Subnet group for RDS",
                 "SubnetIds": [
-                    {
-                        "Ref": "PrivateSubnet"
-                    },
-                    {
-                        "Ref": "PublicSubnet"
-                    }
+                    { "Ref": "PrivateSubnet" },
+                    { "Ref": "PublicSubnet" }
                 ]
             }
         },
-        "IncidentDB": {
+        "ReachoutDB": {
             "Type": "AWS::RDS::DBInstance",
             "Properties": {
-                "DBInstanceIdentifier": "urbanDB",
+                "DBInstanceIdentifier": "ReachoutDB_identifier",
+                "DBName": "Reachoutdb",
                 "Engine": "mysql",
                 "EngineVersion": "8.0",
-                "MasterUsername": "username",
-                "MasterUserPassword": "password",
+                "MasterUsername": { "Ref": "DBUsername" },
+                "MasterUserPassword": { "Ref": "DBPassword" },
                 "DBInstanceClass": "db.t3.micro",
                 "AllocatedStorage": 20,
                 "VPCSecurityGroups": [
                     {
-                        "Fn::GetAtt": [
-                            "RDSSecurityGroup",
-                            "GroupId"
-                        ]
+                        "Fn::GetAtt": [ "RDSSecurityGroup", "GroupId" ]
                     }
                 ],
-                "DBSubnetGroupName": {
-                    "Ref": "DBSubnetGroup"
-                },
+                "DBSubnetGroupName": { "Ref": "DBSubnetGroup" },
                 "PubliclyAccessible": false,
                 "MultiAZ": false
             }
