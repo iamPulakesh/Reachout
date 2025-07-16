@@ -1,6 +1,6 @@
 ## Overview
 
-UrbanShield is a Flask-based web application deployed on AWS that allows people to submit real-time reports of incidents such as accidents, disasters or safety concerns. The application supports image uploads, geolocation via Google Maps API and structured data storage.
+ReachOut is a Flask-based web application deployed on AWS that allows people to submit real-time reports of incidents such as accidents, disasters or safety concerns. The application supports image uploads, geolocation via Google Maps API and structured data storage.
 
 The goal is to help people and authorities — stay informed and connected through transparent public reporting.
 
