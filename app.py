@@ -4,16 +4,22 @@ import time
 import os
 import mysql.connector
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 s3 = boto3.client('s3')
-BUCKET = 's3_bucket_name'  # S3 bucket name
+BUCKET = 'cf-templates-1dif3fweoqwe7-ap-south-1'  # S3 bucket name
 
-# RDS DB connection config
-DB_HOST = 'your_rds_endpoint'
-DB_USER = 'username'
-DB_PASSWORD = 'password'
-DB_NAME = 'db_name'
+def get_ssm_parameter(name, secure=False):
+    ssm = boto3.client('ssm', region_name='ap-south-1')
+    return ssm.get_parameter(Name=name, WithDecryption=secure)['Parameter']['Value']
+
+# Fetching DB creds and API via ssm
+DB_HOST = get_ssm_parameter("/reachout/DB_HOST")
+DB_USER = get_ssm_parameter("/reachout/DB_USER")
+DB_PASSWORD = get_ssm_parameter("/reachout/DB_PASSWORD", secure=True)
+DB_NAME = get_ssm_parameter("/reachout/DB_NAME")
+GOOGLE_MAPS_API_KEY = get_ssm_parameter("/reachout/GOOGLE_MAPS_API_KEY", secure=True)
 
 @app.route("/all-reports")
 def all_reports():
@@ -28,9 +34,11 @@ def all_reports():
     rows = cursor.fetchall()
 
     formatted_rows = []
+    local_tz = pytz.timezone('Asia/Kolkata')
     for row in rows:
         new_row = list(row)
-        new_row[6] = datetime.utcfromtimestamp(int(row[6])).strftime('%Y-%m-%d %H:%M:%S')
+        dt = datetime.fromtimestamp(int(row[6]), tz=pytz.utc).astimezone(local_tz)
+        new_row[6] = dt.strftime('%Y-%m-%d %H:%M:%S')
         formatted_rows.append(new_row)
 
     return render_template("view_reports.html", rows=formatted_rows)
@@ -68,9 +76,25 @@ def index():
         except Exception as e:
             return f"Error saving to DB: {e}"
 
-        return "Incident Reported Successfully!"
+        return '''
+            <html>
+                <head>
+                    <title>Success</title>
+                    <script>
+                        setTimeout(function() {
+                            window.location.href = "/";
+                        }, 5000);
+                    </script>
+                </head>
+                <body>
+                    <h2>Incident Reported Successfully!</h2>
+                    <p>You will be redirected to the homepage shortly...</p>
+                </body>
+            </html>
+        '''
 
-    return render_template('index.html')
+
+    return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY)
 
 if __name__ == "__main__":
     # Create table if not exists it will run only once
@@ -101,3 +125,4 @@ if __name__ == "__main__":
         print(f"Error creating table: {e}")
 
     app.run(host="0.0.0.0", port=80)
+
