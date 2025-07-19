@@ -72,12 +72,12 @@
   </style>
 
   <!-- Google Maps API -->
-  <script src= YOUR_GOOGLE_MAPS_API></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}&callback=initMap" async defer></script>
   <script>
-    let map, marker;
+    let map, marker;   
 
     function initMap() {
-      const defaultLocation = { lat: 35.67, lng: 139.65 }; //change accordingly
+      const defaultLocation = { lat: 35.67, lng: 139.65 };
 
       map = new google.maps.Map(document.getElementById("map"), {
         center: defaultLocation,
@@ -130,3 +130,4 @@
 
 </body>
 </html>
+
