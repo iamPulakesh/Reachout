@@ -20,6 +20,7 @@ DB_USER = get_ssm_parameter("/reachout/DB_USER")
 DB_PASSWORD = get_ssm_parameter("/reachout/DB_PASSWORD", secure=True)
 DB_NAME = get_ssm_parameter("/reachout/DB_NAME")
 GOOGLE_MAPS_API_KEY = get_ssm_parameter("/reachout/GOOGLE_MAPS_API_KEY", secure=True)
+S3_BASE_URL = get_ssm_parameter("/reachout/S3_BASE_URL")
 
 @app.route("/all-reports")
 def all_reports():
@@ -94,7 +95,7 @@ def index():
         '''
 
 
-    return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY)
+    return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY, s3_base_url=S3_BASE_URL )
 
 if __name__ == "__main__":
     # Create table if not exists it will run only once
@@ -125,4 +126,3 @@ if __name__ == "__main__":
         print(f"Error creating table: {e}")
 
     app.run(host="0.0.0.0", port=80)
-
