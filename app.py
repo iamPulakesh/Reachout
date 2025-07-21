@@ -121,7 +121,7 @@ if __name__ == "__main__":
         db.commit()
         cursor.close()
         db.close()
-        print("Table created or already exists.")
+        print("Table created or already exists")
     except Exception as e:
         print(f"Error creating table: {e}")
 
