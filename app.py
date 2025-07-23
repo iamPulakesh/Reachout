@@ -7,8 +7,6 @@ from datetime import datetime
 import pytz
 
 app = Flask(__name__)
-s3 = boto3.client('s3')
-BUCKET = 'cf-templates-1dif3fweoqwe7-ap-south-1'  # S3 bucket name
 
 def get_ssm_parameter(name, secure=False):
     ssm = boto3.client('ssm', region_name='ap-south-1')
@@ -21,6 +19,9 @@ DB_PASSWORD = get_ssm_parameter("/reachout/DB_PASSWORD", secure=True)
 DB_NAME = get_ssm_parameter("/reachout/DB_NAME")
 GOOGLE_MAPS_API_KEY = get_ssm_parameter("/reachout/GOOGLE_MAPS_API_KEY", secure=True)
 S3_BASE_URL = get_ssm_parameter("/reachout/S3_BASE_URL")
+BUCKET = get_ssm_parameter("/reachout/S3_BUCKET")
+
+s3 = boto3.client('s3')
 
 @app.route("/all-reports")
 def all_reports():
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         db.commit()
         cursor.close()
         db.close()
-        print("Table created or already exists")
+        print("Table created or already exists.")
     except Exception as e:
         print(f"Error creating table: {e}")
 
