@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import boto3
 import time
 import os
@@ -12,7 +12,7 @@ def get_ssm_parameter(name, secure=False):
     ssm = boto3.client('ssm', region_name='ap-south-1')
     return ssm.get_parameter(Name=name, WithDecryption=secure)['Parameter']['Value']
 
-# Fetching DB creds and API via ssm
+# Fetching DB creds and other secrets from AWS SSM
 DB_HOST = get_ssm_parameter("/reachout/DB_HOST")
 DB_USER = get_ssm_parameter("/reachout/DB_USER")
 DB_PASSWORD = get_ssm_parameter("/reachout/DB_PASSWORD", secure=True)
@@ -58,7 +58,6 @@ def index():
 
         s3.upload_fileobj(file, BUCKET, filename)
 
-        # Storing in the rds
         try:
             db = mysql.connector.connect(
                 host=DB_HOST,
@@ -80,8 +79,7 @@ def index():
 
         return '''
             <html>
-                <head>
-                    <title>Success</title>
+                <head><title>Success</title>
                     <script>
                         setTimeout(function() {
                             window.location.href = "/";
@@ -95,11 +93,66 @@ def index():
             </html>
         '''
 
+    return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY, s3_base_url=S3_BASE_URL)
 
-    return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY, s3_base_url=S3_BASE_URL )
+
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if request.method == "POST":
+        action = request.form.get("action")
+        report_id = request.form.get("report_id")
+
+        if action == "delete":
+            try:
+                db = mysql.connector.connect(
+                    host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
+                )
+                cursor = db.cursor()
+
+                # Delete image from S3
+                cursor.execute("SELECT image_name FROM reports WHERE id = %s", (report_id,))
+                image = cursor.fetchone()
+                if image:
+                    s3.delete_object(Bucket=BUCKET, Key=image[0])
+
+                cursor.execute("DELETE FROM reports WHERE id = %s", (report_id,))
+                db.commit()
+                cursor.close()
+                db.close()
+            except Exception as e:
+                return f"Error deleting report: {e}"
+
+
+    db = mysql.connector.connect(
+        host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
+    )
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM reports")
+    rows = cursor.fetchall()
+
+    formatted_rows = []
+    local_tz = pytz.timezone('Asia/Kolkata')
+    for row in rows:
+        new_row = list(row)
+        dt = datetime.fromtimestamp(int(row[6]), tz=pytz.utc).astimezone(local_tz)
+        new_row[6] = dt.strftime('%Y-%m-%d %H:%M:%S')
+        formatted_rows.append(new_row)
+
+    return render_template("admin.html", rows=formatted_rows)
+
+@app.route("/view-image/<image_name>")
+def view_image(image_name):
+    try:
+        signed_url = s3.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': BUCKET, 'Key': image_name},
+            ExpiresIn=300 
+        )
+        return redirect(signed_url)
+    except Exception as e:
+        return f"Error generating signed URL: {e}"
 
 if __name__ == "__main__":
-    # Create table if not exists it will run only once
     try:
         db = mysql.connector.connect(
             host=DB_HOST,
