@@ -30,7 +30,21 @@ def index():
             db.close()
         except Exception as e:
             return f"Error saving to DB: {e}"
-        return render_template('success.html')
+        return '''
+            <html>
+                <head><title>Success</title>
+                    <script>
+                        setTimeout(function() {
+                            window.location.href = "/";
+                        }, 5000);
+                    </script>
+                </head>
+                <body>
+                    <h2>Incident Reported Successfully!</h2>
+                    <p>You will be redirected to the homepage shortly...</p>
+                </body>
+            </html>
+        '''
     return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY, s3_base_url=S3_BASE_URL)
 
 @main_bp.route('/all-reports')
