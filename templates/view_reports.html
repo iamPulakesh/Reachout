@@ -68,7 +68,7 @@
     <td>{{ row[3] }}</td>
     <td>{{ row[4] }}</td>
     <td>{{ row[6] }}</td>
-    <td><a href="{{ url_for('view_image', image_name=row[5]) }}" class="btn btn-view" target="_blank">View</a></td>
+    <td><a href="{{ url_for('image.view_image', image_name=row[5]) }}" class="btn btn-view" target="_blank">View</a></td>
   </tr>
   {% endfor %}
 </table>
