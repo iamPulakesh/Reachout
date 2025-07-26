@@ -21,7 +21,7 @@ GOOGLE_MAPS_API_KEY = get_ssm_parameter("/reachout/GOOGLE_MAPS_API_KEY", secure=
 S3_BASE_URL = get_ssm_parameter("/reachout/S3_BASE_URL")
 BUCKET = get_ssm_parameter("/reachout/S3_BUCKET")
 
-s3 = boto3.client('s3')
+s3 = boto3.client('s3', region_name='ap-south-1')
 
 @app.route("/all-reports")
 def all_reports():
@@ -67,10 +67,10 @@ def index():
             )
             cursor = db.cursor()
             insert_query = '''
-                INSERT INTO reports (incident_type, address, lat, lng, image_name, timestamp)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO reports (incident_type, address, lat, lng, image_name, timestamp, resolved)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             '''
-            cursor.execute(insert_query, (incident_type, address, lat, lng, filename, timestamp))
+            cursor.execute(insert_query, (incident_type, address, lat, lng, filename, timestamp, 0))
             db.commit()
             cursor.close()
             db.close()
@@ -121,7 +121,18 @@ def admin():
                 db.close()
             except Exception as e:
                 return f"Error deleting report: {e}"
-
+        elif action == "resolve":
+            try:
+                db = mysql.connector.connect(
+                    host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
+                )
+                cursor = db.cursor()
+                cursor.execute("UPDATE reports SET resolved = 1 WHERE id = %s", (report_id,))
+                db.commit()
+                cursor.close()
+                db.close()
+            except Exception as e:
+                return f"Error resolving report: {e}"
 
     db = mysql.connector.connect(
         host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
@@ -169,7 +180,8 @@ if __name__ == "__main__":
                 lat FLOAT,
                 lng FLOAT,
                 image_name VARCHAR(255),
-                timestamp BIGINT
+                timestamp BIGINT,
+                resolved TINYINT(1) DEFAULT 0
             )
         ''')
         db.commit()
