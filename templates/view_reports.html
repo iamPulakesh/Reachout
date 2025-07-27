@@ -58,7 +58,7 @@
     <th>Latitude</th>
     <th>Longitude</th>
     <th>Timestamp</th>
-    <th>Image</th>
+    <th>Attachments</th>
   </tr>
   {% for row in rows %}
   <tr{% if row|length > 7 and row[7] == 1 %} class="resolved"{% endif %}>
@@ -68,7 +68,15 @@
     <td>{{ row[3] }}</td>
     <td>{{ row[4] }}</td>
     <td>{{ row[6] }}</td>
-    <td><a href="{{ url_for('image.view_image', image_name=row[5]) }}" class="btn btn-view" target="_blank">View</a></td>
+    <td>
+      {% if row[5] %}
+        {% for file in row[5].split(',') %}
+          <a href="{{ S3_BASE_URL }}/{{ file }}" target="_blank" download style="margin-right:8px;">
+            Download {{ loop.index }}
+          </a>
+        {% endfor %}
+      {% endif %}
+    </td>
   </tr>
   {% endfor %}
 </table>

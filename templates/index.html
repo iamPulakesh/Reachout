@@ -105,8 +105,27 @@
     <label for="type">Incident Type:</label>
     <input type="text" name="type" required placeholder="e.g., Fire, Accident, Power Outage">
 
-    <label for="image">Incident Image:</label>
-    <input type="file" name="image" required>
+
+    <label for="attachments">Incident Attachments (up to 3, png/jpg/jpeg/mp4):</label>
+    <input type="file" name="attachments" id="attachments" accept=".png,.jpg,.jpeg,.mp4" multiple required>
+    <small>You can select up to 3 files (png, jpg, jpeg, mp4).</small>
+
+    <script>
+      document.getElementById('attachments').addEventListener('change', function(e) {
+        if (this.files.length > 3) {
+          alert('You can only upload up to 3 files.');
+          this.value = '';
+        }
+        for (let file of this.files) {
+          const ext = file.name.split('.').pop().toLowerCase();
+          if (!['png', 'jpg', 'jpeg', 'mp4'].includes(ext)) {
+            alert('Only png, jpg, jpeg, and mp4 files are allowed.');
+            this.value = '';
+            break;
+          }
+        }
+      });
+    </script>
 
     <label for="address">Address:</label>
     <input type="text" name="address" required placeholder="e.g., 15-9, Minami Aoyama 1-chome, Minato-ku, Tokyo, 100-0000, Japan">

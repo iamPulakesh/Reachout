@@ -9,14 +9,24 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        file = request.files['image']
+        files = request.files.getlist('attachments')
         address = request.form['address']
         lat = request.form['lat']
         lng = request.form['lng']
         incident_type = request.form['type']
         timestamp = int(time.time())
-        filename = f"{incident_type}_{timestamp}.jpg"
-        s3.upload_fileobj(file, BUCKET, filename)
+        # Validation
+        if not (1 <= len(files) <= 3):
+            return "Please upload 1 to 3 files."
+        allowed_exts = {'png', 'jpg', 'jpeg', 'mp4'}
+        filenames = []
+        for file in files:
+            ext = file.filename.rsplit('.', 1)[-1].lower()
+            if ext not in allowed_exts:
+                return "Only png, jpg, jpeg, and mp4 files are allowed."
+            unique_name = f"{incident_type}_{timestamp}_{file.filename}"
+            s3.upload_fileobj(file, BUCKET, unique_name)
+            filenames.append(unique_name)
         try:
             db = get_db_connection()
             cursor = db.cursor()
@@ -24,7 +34,9 @@ def index():
                 INSERT INTO reports (incident_type, address, lat, lng, image_name, timestamp, resolved)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             '''
-            cursor.execute(insert_query, (incident_type, address, lat, lng, filename, timestamp, 0))
+            cursor.execute(insert_query, (
+                incident_type, address, lat, lng, ','.join(filenames), timestamp, 0
+            ))
             db.commit()
             cursor.close()
             db.close()
