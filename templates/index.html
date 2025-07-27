@@ -3,36 +3,38 @@
 <head>
   <title>Smart City Incident Reporting</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
+    html, body {
+      height: 100%;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      width: 100vw;
+      min-height: 100vh;
+      background: #f5f7fa;
+      font-family: Arial, sans-serif;
     }
-
     h1 {
       text-align: center;
       color: #333;
+      margin-top: 24px;
     }
-
     form {
+      width: 100%;
       max-width: 600px;
       background: #fff;
       padding: 25px;
       display: flex;
       flex-direction: column;
-      margin: auto;
+      margin: 24px auto 0 auto;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
     label {
       display: block;
       margin: 15px 0 5px;
       font-weight: bold;
     }
-
     input[type="text"],
     input[type="file"] {
       width: 100%;
@@ -41,7 +43,6 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-
     button {
       margin-top: 20px;
       color: white;
@@ -51,11 +52,9 @@
       border-radius: 4px;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #45a049;
     }
-
     #map {
       margin-top: 15px;
       height: 400px;
@@ -63,11 +62,31 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-
     .note {
       font-size: 0.9em;
       color: #555;
       margin-top: 5px;
+    }
+    @media (max-width: 700px) {
+      form {
+        max-width: 98vw;
+        padding: 10px;
+      }
+      #map {
+        height: 250px;
+      }
+      button {
+        font-size: 15px;
+        padding: 10px 0;
+      }
+    }
+    @media (max-width: 400px) {
+      h1 {
+        font-size: 1.2em;
+      }
+      form {
+        padding: 4px;
+      }
     }
   </style>
 
@@ -103,12 +122,31 @@
 
   <form method="POST" enctype="multipart/form-data">
     <label for="type">Incident Type:</label>
-    <input type="text" name="type" required placeholder="e.g., Fire, Accident, Power Outage">
+    <input type="text" name="type" required placeholder="e.g., Fire Outbreak, Accident, Flood">
 
-    <label for="image">Incident Image:</label>
-    <input type="file" name="image" required>
 
-    <label for="address">Address:</label>
+    <label for="attachments">Attachments</label>
+    <input type="file" name="attachments" id="attachments" accept=".png,.jpg,.jpeg,.mp4" multiple required>
+    <small>You can select up to 3 files (Images and Videos Only).</small>
+
+    <script>
+      document.getElementById('attachments').addEventListener('change', function(e) {
+        if (this.files.length > 3) {
+          alert('You can only upload up to 3 files.');
+          this.value = '';
+        }
+        for (let file of this.files) {
+          const ext = file.name.split('.').pop().toLowerCase();
+          if (!['png', 'jpg', 'jpeg', 'mp4'].includes(ext)) {
+            alert('Only png, jpg, jpeg, and mp4 files are allowed.');
+            this.value = '';
+            break;
+          }
+        }
+      });
+    </script>
+
+    <label for="address">Location:</label>
     <input type="text" name="address" required placeholder="e.g., 15-9, Minami Aoyama 1-chome, Minato-ku, Tokyo, 100-0000, Japan">
 
 
