@@ -103,12 +103,12 @@
 
   <form method="POST" enctype="multipart/form-data">
     <label for="type">Incident Type:</label>
-    <input type="text" name="type" required placeholder="e.g., Fire, Accident, Power Outage">
+    <input type="text" name="type" required placeholder="e.g., Fire Outbreak, Accident, Flood">
 
 
-    <label for="attachments">Incident Attachments (up to 3, png/jpg/jpeg/mp4):</label>
+    <label for="attachments">Attachments</label>
     <input type="file" name="attachments" id="attachments" accept=".png,.jpg,.jpeg,.mp4" multiple required>
-    <small>You can select up to 3 files (png, jpg, jpeg, mp4).</small>
+    <small>You can select up to 3 files (Images and Videos Only).</small>
 
     <script>
       document.getElementById('attachments').addEventListener('change', function(e) {
@@ -127,7 +127,7 @@
       });
     </script>
 
-    <label for="address">Address:</label>
+    <label for="address">Location:</label>
     <input type="text" name="address" required placeholder="e.g., 15-9, Minami Aoyama 1-chome, Minato-ku, Tokyo, 100-0000, Japan">
 
 
