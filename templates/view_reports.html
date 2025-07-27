@@ -75,16 +75,18 @@
     </td>
 <script>
 function showAttachments(files) {
-  const s3BaseUrl = "{{ S3_BASE_URL }}";
   const fileList = files.split(',');
+  
+  const flaskViewUrl = "{{ url_for('image.view_image', image_name='__FILENAME__') }}";
   let html = '<html><head><title>Attachments</title></head><body style="background:#222;color:#fff;font-family:sans-serif;padding:20px;">';
   html += '<h2>Attachments</h2>';
   fileList.forEach(function(file) {
     const ext = file.split('.').pop().toLowerCase();
+    const fileUrl = flaskViewUrl.replace('__FILENAME__', encodeURIComponent(file));
     if (["png","jpg","jpeg"].includes(ext)) {
-      html += `<div style='margin-bottom:16px;'><img src='${s3BaseUrl}/${file}' style='max-width:400px;max-height:300px;display:block;'/></div>`;
+      html += `<div style='margin-bottom:16px;'><img src='${fileUrl}' style='max-width:400px;max-height:300px;display:block;'/></div>`;
     } else if (ext === "mp4") {
-      html += `<div style='margin-bottom:16px;'><video src='${s3BaseUrl}/${file}' controls style='max-width:400px;max-height:300px;display:block;'></video></div>`;
+      html += `<div style='margin-bottom:16px;'><video src='${fileUrl}' controls style='max-width:400px;max-height:300px;display:block;'></video></div>`;
     }
   });
   html += '</body></html>';
