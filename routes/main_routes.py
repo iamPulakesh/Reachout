@@ -15,7 +15,7 @@ def index():
         lng = request.form['lng']
         incident_type = request.form['type']
         timestamp = int(time.time())
-        # Validation
+        
         if not (1 <= len(files) <= 3):
             return "Please upload 1 to 3 files."
         allowed_exts = {'png', 'jpg', 'jpeg', 'mp4'}
