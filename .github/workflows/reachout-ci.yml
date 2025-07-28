@@ -2,9 +2,9 @@ name: Reachout CI
 
 on:
   push:
-    branches: [ master, testing ]
+    branches: [ master]
   pull_request:
-    branches: [ master, testing ]
+    branches: [ master]
 
 jobs:
   build:
