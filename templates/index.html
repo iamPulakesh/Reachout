@@ -90,10 +90,10 @@
     }
   </style>
 
-  <!-- Google Maps API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}&callback=initMap" async defer></script>
+  <!-- Google Maps API-->
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}&libraries=places&callback=initMap" async defer></script>
   <script>
-    let map, marker;   
+    let map, marker, autocomplete;
 
     function initMap() {
       const defaultLocation = { lat: 35.67, lng: 139.65 };
@@ -109,9 +109,27 @@
           position: e.latLng,
           map: map,
         });
-
         document.getElementById("lat").value = e.latLng.lat();
         document.getElementById("lng").value = e.latLng.lng();
+      });
+
+      // Enable Places Autocomplete for address input
+      const input = document.querySelector('input[name="address"]');
+      autocomplete = new google.maps.places.Autocomplete(input);
+
+      autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        if (place.geometry && place.geometry.location) {
+          map.setCenter(place.geometry.location);
+          map.setZoom(16);
+          if (marker) marker.setMap(null);
+          marker = new google.maps.Marker({
+            position: place.geometry.location,
+            map: map,
+          });
+          document.getElementById("lat").value = place.geometry.location.lat();
+          document.getElementById("lng").value = place.geometry.location.lng();
+        }
       });
     }
   </script>
