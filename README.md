@@ -67,18 +67,6 @@ Reachout/
         └── reachout-ci.yml
 ```
 
----
-
-## CI/CD
-- **CI:** GitHub Actions workflow runs on every push/PR to `master`.
-  - Installs dependencies
-  - Sets AWS credentials from secrets
-  - Lints code with flake8
-  - Checks app import
-- **CD:** Not included by default. Add deployment steps as needed.
-
----
-
 
 
 
