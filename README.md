@@ -9,7 +9,6 @@ The goal is to help people and authorities — stay informed and connected throu
 ## Features
 - Submit incident reports with up to 3 images/videos
 - View all reported incidents in a searchable table
-- Admin panel for report management
 - Attachments stored securely in AWS S3
 - Modular Flask app using Blueprints
 - MySQL database integration
