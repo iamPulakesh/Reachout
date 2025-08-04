@@ -7,61 +7,79 @@ The goal is to help people and authorities — stay informed and connected throu
 ---
 
 ## Features
-
-- Submit reports with location, description, incident type and image
-- Google Maps API integration for accurate location tagging
-- Public view to access all submitted reports
-- Uploaded images stored in Amazon S3
-- Data stored securely in Amazon RDS
-- Deployed in a secure AWS VPC using EC2
-
----
-
-## AWS Services Used
-
-| Service        | Purpose                                                 |
-|----------------|---------------------------------------------------------|
-| **EC2**         | Hosts the Flask application                             |
-| **S3**          | Stores uploaded images securely                         |
-| **RDS / MySQL** | Stores incident report data in structured format        |
-| **VPC**         | Isolated networking environment for the application     |
-| **IAM**         | Manages secure access between EC2 and other services    |
-| **CloudFormation** | Automates infrastructure deployment as code          |
+- Submit incident reports with up to 3 images/videos
+- View all reported incidents in a searchable table
+- Admin panel for report management
+- Attachments stored securely in AWS S3
+- Modular Flask app using Blueprints
+- MySQL database integration
+- Secure AWS credentials via GitHub Actions secrets
+- CI pipeline with linting and import checks
 
 ---
 
-## How It Works
-
-1. **User submits a report** with location, incident type, details and image(optional).
-2. **Google Maps API** fetches coordinates from the address.
-3. Image is uploaded to **S3** and metadata is stored in **RDS**.
-4. Public can view the reports which are submitted and share it with the respective authority.
-
----
-
-## Deployment Instructions
-
-1. Launch your stack using the `cloudformation-template.yaml`.
-2. SSH into the EC2 instance and deploy the Flask app.
-3. Configure environment variables for DB and S3.
-4. Ensure the EC2 instance has proper IAM role and VPC settings.
+## Requirements
+- Python 3.11+
+- MySQL database
+- AWS account (S3, SSM Parameter Store)
+- AWS credentials (set as environment variables or GitHub secrets)
 
 ---
+
 ## Setup
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/iamPulakesh/Reachout.git
+   cd Reachout
+   ```
+2. **Install dependencies:**
+   ```sh
+   pip install -r Requirements.txt
+   ```
+3. **Configure AWS and DB:**
+   - Store DB and S3 credentials in AWS SSM Parameter Store
+   - Set AWS credentials as environment variables or GitHub secrets
+4. **Run the app:**
+   ```sh
+   python3 app.py
+   ```
+5. **Access the app:**
+   - http://localhost:5000/
 
-1. Deploy Infra
-aws cloudformation create-stack \
-  - stack-name incident-reporter-stack \
-  - template-body file://cloudformation-template.json \
+---
 
-2. SSH into EC2
-`ssh -i your_accesskey.pem ec2-user@ ec2-public-ip`
+## Project Structure
+```
+Reachout/
+├── app.py
+├── Requirements.txt
+├── db/
+│   └── connection.py
+├── routes/
+│   ├── main_routes.py
+│   ├── admin_routes.py
+│   └── image_routes.py
+├── templates/
+│   ├── index.html
+│   ├── admin.html
+│   └── view_reports.html
+└── .github/
+    └── workflows/
+        └── reachout-ci.yml
+```
 
-3. App Setup
-`sudo yum install python3 git -y`
+---
 
-4. Run the Flask app
-`python3 app.py`
+## CI/CD
+- **CI:** GitHub Actions workflow runs on every push/PR to `master`.
+  - Installs dependencies
+  - Sets AWS credentials from secrets
+  - Lints code with flake8
+  - Checks app import
+- **CD:** Not included by default. Add deployment steps as needed.
+
+---
+
 
 
 
