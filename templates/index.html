@@ -9,12 +9,18 @@
 
   <style>
     body {
-      background-color: #f5f7fa;
+      background: linear-gradient(135deg, #74ABE2 0%, #5563DE 100%);
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .card {
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(145deg, #ffffff, #f1f4ff);
+      padding: 2rem;
     }
     #map {
       height: 400px;
@@ -23,6 +29,15 @@
     .note {
       font-size: 0.9em;
       color: #666;
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      color: #fff;
+      border: none;
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #2bb673, #0d3d73);
+      color: #fff;
     }
     @media (max-width: 768px) {
       #map { height: 250px; }
@@ -35,9 +50,9 @@
 <body onload="initMap()">
 
   <div class="container py-5">
-    <h1 class="text-center mb-4 fw-bold">Report an Incident</h1>
+    <h1 class="text-center mb-4 fw-bold text-white">Report an Incident</h1>
 
-    <div class="card p-4">
+    <div class="card">
       <form method="POST" enctype="multipart/form-data" class="row g-3">
 
         <div class="col-12">
@@ -66,7 +81,7 @@
         <input type="hidden" id="lng" name="lng">
 
         <div class="col-12 d-grid">
-          <button type="submit" class="btn btn-success btn-lg">Submit</button>
+          <button type="submit" class="btn btn-gradient btn-lg">Submit</button>
         </div>
       </form>
     </div>
