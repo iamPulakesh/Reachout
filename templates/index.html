@@ -9,18 +9,12 @@
 
   <style>
     body {
-      background: linear-gradient(135deg, #74ABE2 0%, #5563DE 100%);
+      background-color: #f5f7fa;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .card {
-      border-radius: 16px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      background: linear-gradient(145deg, #ffffff, #f1f4ff);
-      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
     #map {
       height: 400px;
@@ -30,26 +24,20 @@
       font-size: 0.9em;
       color: #666;
     }
-    
-    .btn-gradient {
-      background: linear-gradient(135deg, #43cea2, #185a9d);
-      color: #fff;
-      border: none;
-    }
-    .btn-gradient:hover {
-      background: linear-gradient(135deg, #2bb673, #0d3d73);
-      color: #fff;
-    }
-    
-    .btn-zoom {
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .btn-zoom:hover {
-      transform: scale(1.08);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-    }
     @media (max-width: 768px) {
       #map { height: 250px; }
+    }
+
+    button {
+      transition: transform 0.2s ease-in-out;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-submit {
+      font-size: 1rem;
+      padding: 10px 20px;
     }
   </style>
 
@@ -59,9 +47,9 @@
 <body onload="initMap()">
 
   <div class="container py-5">
-    <h1 class="text-center mb-4 fw-bold text-white">Report an Incident</h1>
+    <h1 class="text-center mb-4 fw-bold">Report an Incident</h1>
 
-    <div class="card">
+    <div class="card p-4">
       <form method="POST" enctype="multipart/form-data" class="row g-3">
 
         <div class="col-12">
@@ -89,18 +77,18 @@
         <input type="hidden" id="lat" name="lat">
         <input type="hidden" id="lng" name="lng">
 
-        <div class="col-12 d-grid">
-          <button type="submit" class="btn btn-gradient btn-lg btn-zoom">Submit</button>
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-success btn-submit">Submit</button>
         </div>
       </form>
     </div>
 
     <div class="d-flex justify-content-center gap-3 mt-4">
       <form action="/all-reports" method="get">
-        <button type="submit" class="btn btn-warning btn-zoom">All Reported Incidents</button>
+        <button type="submit" class="btn btn-warning">All Reported Incidents</button>
       </form>
       <form action="/admin" method="get">
-        <button type="submit" class="btn btn-primary btn-zoom">Go to Admin Page</button>
+        <button type="submit" class="btn btn-primary">Go to Admin Page</button>
       </form>
     </div>
   </div>
@@ -137,4 +125,20 @@
       });
     }
 
-    document.getElementById('attachments').addEventListener('change', function
+    document.getElementById('attachments').addEventListener('change', function() {
+      if (this.files.length > 3) {
+        alert('You can only upload up to 3 files.');
+        this.value = '';
+      }
+      for (let file of this.files) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['png', 'jpg', 'jpeg', 'mp4'].includes(ext)) {
+          alert('Only png, jpg, jpeg, and mp4 files are allowed.');
+          this.value = '';
+          break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
