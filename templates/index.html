@@ -27,6 +27,18 @@
     @media (max-width: 768px) {
       #map { height: 250px; }
     }
+
+    button {
+      transition: transform 0.2s ease-in-out;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-submit {
+      font-size: 1rem;
+      padding: 10px 20px;
+    }
   </style>
 
   <!-- Google Maps API -->
@@ -65,8 +77,8 @@
         <input type="hidden" id="lat" name="lat">
         <input type="hidden" id="lng" name="lng">
 
-        <div class="col-12 d-grid">
-          <button type="submit" class="btn btn-success btn-lg">Submit</button>
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-success btn-submit">Submit</button>
         </div>
       </form>
     </div>
