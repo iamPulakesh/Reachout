@@ -43,30 +43,34 @@ The goal is to help people and authorities — stay informed and connected throu
    python3 app.py
    ```
 5. **Access the app:**
-   - http://localhost:5000/
+   - http://localhost:80
 
 ---
 
 ## Project Structure
+
 ```
 Reachout/
 ├── app.py
-├── Requirements.txt
+├── Requirements.txt         
 ├── db/
 │   └── connection.py
 ├── routes/
 │   ├── main_routes.py
 │   ├── admin_routes.py
 │   └── image_routes.py
+├── static/
+│   └── style.css        
 ├── templates/
 │   ├── index.html
 │   ├── admin.html
 │   └── view_reports.html
-└── .github/
-    └── workflows/
-        └── reachout-ci.yml
-```
+├── .github/
+│   └── workflows/
+│       └── lint-and-import-check.yml
+└── README.md
 
+```
 
 
 
