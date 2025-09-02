@@ -1,4 +1,4 @@
-name: Reachout CI
+name: Reachout lint and import check
 
 on:
   push:
