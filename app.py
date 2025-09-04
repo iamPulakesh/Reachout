@@ -33,3 +33,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error creating table: {e}")
     app.run(host="0.0.0.0", port=80)
+    app.run(host="0.0.0.0", port=80)
