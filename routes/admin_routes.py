@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request
-from db.connection import get_db_connection, s3, BUCKET
+import logging
+from db.connection import get_db_connection
+from utils.s3_utils import delete_objects
 from datetime import datetime
 import pytz
 
@@ -15,9 +17,19 @@ def admin():
                 db = get_db_connection()
                 cursor = db.cursor()
                 cursor.execute("SELECT image_name FROM reports WHERE id = %s", (report_id,))
-                image = cursor.fetchone()
-                if image:
-                    s3.delete_object(Bucket=BUCKET, Key=image[0])
+                row = cursor.fetchone()
+                attachment_keys = []
+                if row and row[0]:
+                    attachment_keys = [k.strip() for k in row[0].split(',') if k.strip()]
+                    failed = delete_objects(attachment_keys)
+                    if failed:
+                        logging.getLogger(__name__).warning(
+                            "Partial S3 delete failure", extra={
+                                "failed_keys": failed,
+                                "report_id": report_id,
+                                "total_keys": len(attachment_keys)
+                            }
+                        )
                 cursor.execute("DELETE FROM reports WHERE id = %s", (report_id,))
                 db.commit()
                 cursor.close()
