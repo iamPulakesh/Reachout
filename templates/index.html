@@ -66,16 +66,55 @@
   <script>
     let map, marker, autocomplete;
     function initMap() {
-      const defaultLocation = { lat: 35.67, lng: 139.65 };
+      const defaultLocation = { lat: 23.0225, lng: 72.5714 };
       map = new google.maps.Map(document.getElementById("map"), {
         center: defaultLocation,
         zoom: 12,
       });
+      const geocoder = new google.maps.Geocoder();
+      const placesService = new google.maps.places.PlacesService(map);
       map.addListener("click", (e) => {
+        // If clicking on a POI, fetch exact place details
+        if (e.placeId) {
+          e.stop(); // Prevent default info window
+          placesService.getDetails({
+            placeId: e.placeId,
+            fields: ["name", "formatted_address", "geometry"],
+          }, (place, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+              const pos = (place.geometry && place.geometry.location) ? place.geometry.location : e.latLng;
+              if (marker) marker.setMap(null);
+              marker = new google.maps.Marker({ position: pos, map: map });
+              document.getElementById("lat").value = pos.lat().toFixed(7);
+              document.getElementById("lng").value = pos.lng().toFixed(7);
+              const name = place.name ? `${place.name}, ` : "";
+              document.querySelector('input[name="address"]').value = `${name}${place.formatted_address || ''}`.replace(/,\s*$/, "");
+            } else {
+              // Fallback to reverse geocoding if details failed
+              if (marker) marker.setMap(null);
+              marker = new google.maps.Marker({ position: e.latLng, map: map });
+              document.getElementById("lat").value = e.latLng.lat().toFixed(7);
+              document.getElementById("lng").value = e.latLng.lng().toFixed(7);
+              geocoder.geocode({ location: e.latLng }, (results, s) => {
+                if (s === "OK" && results[0]) {
+                  document.querySelector('input[name="address"]').value = results[0].formatted_address;
+                }
+              });
+            }
+          });
+          return;
+        }
+
+        // Non-POI click: place a marker and reverse geocode
         if (marker) marker.setMap(null);
         marker = new google.maps.Marker({ position: e.latLng, map: map });
-        document.getElementById("lat").value = e.latLng.lat();
-        document.getElementById("lng").value = e.latLng.lng();
+  document.getElementById("lat").value = e.latLng.lat().toFixed(7);
+  document.getElementById("lng").value = e.latLng.lng().toFixed(7);
+        geocoder.geocode({ location: e.latLng }, (results, status) => {
+          if (status === "OK" && results[0]) {
+            document.querySelector('input[name="address"]').value = results[0].formatted_address;
+          }
+        });
       });
 
       const input = document.querySelector('input[name="address"]');
@@ -87,8 +126,8 @@
           map.setZoom(16);
           if (marker) marker.setMap(null);
           marker = new google.maps.Marker({ position: place.geometry.location, map: map });
-          document.getElementById("lat").value = place.geometry.location.lat();
-          document.getElementById("lng").value = place.geometry.location.lng();
+          document.getElementById("lat").value = place.geometry.location.lat().toFixed(7);
+          document.getElementById("lng").value = place.geometry.location.lng().toFixed(7);
         }
       });
     }
