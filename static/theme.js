@@ -4,46 +4,76 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!document.getElementById('theme-switch')) {
     const switchButton = document.createElement('button');
     switchButton.id = 'theme-switch';
-    switchButton.innerHTML = '<span id="theme-icon">🌙</span> <span id="theme-label">Dark Mode</span>';
+    switchButton.innerHTML = '<span id="theme-icon" class="theme-icon" aria-hidden="true">🌙</span>';
+    switchButton.setAttribute('aria-label', 'Toggle theme');
+    switchButton.title = 'Toggle theme';
+    // Placement
     switchButton.style.position = 'fixed';
     switchButton.style.top = '24px';
     switchButton.style.right = '24px';
     switchButton.style.zIndex = '1000';
-    switchButton.style.padding = '10px 22px';
-    switchButton.style.borderRadius = '24px';
-    switchButton.style.border = 'none';
-    switchButton.style.background = 'linear-gradient(90deg, #232526 0%, #414345 100%)';
-    switchButton.style.color = '#fff';
-    switchButton.style.fontWeight = 'bold';
-    switchButton.style.fontSize = '1rem';
-    switchButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    // Circular icon button
+    switchButton.style.width = '46px';
+    switchButton.style.height = '46px';
+    switchButton.style.padding = '0';
+    switchButton.style.borderRadius = '999px';
+    switchButton.style.border = '1px solid rgba(0,0,0,0.08)';
+    switchButton.style.display = 'flex';
+    switchButton.style.alignItems = 'center';
+    switchButton.style.justifyContent = 'center';
+    switchButton.style.background = 'linear-gradient(135deg, #f8f9fb 0%, #e3e7ee 100%)';
+    switchButton.style.color = '#111';
+    switchButton.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)';
     switchButton.style.cursor = 'pointer';
-    switchButton.style.transition = 'background 0.3s, color 0.3s';
+    switchButton.style.backdropFilter = 'blur(6px)';
+    switchButton.style.webkitBackdropFilter = 'blur(6px)';
+    switchButton.style.transition = 'transform 0.15s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease';
     switchButton.onmouseover = function() {
-      switchButton.style.background = 'linear-gradient(90deg, #414345 0%, #232526 100%)';
+      switchButton.style.transform = 'translateY(-2px)';
     };
     switchButton.onmouseout = function() {
-      switchButton.style.background = 'linear-gradient(90deg, #232526 0%, #414345 100%)';
+      switchButton.style.transform = 'translateY(0)';
     };
     document.body.appendChild(switchButton);
+
+    // Helper to apply button theme
+    function styleButtonForTheme(isDark){
+      if(isDark){
+        switchButton.style.background = 'linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 100%)';
+        switchButton.style.borderColor = 'rgba(255,255,255,0.14)';
+        switchButton.style.color = '#fff';
+        switchButton.style.boxShadow = '0 8px 20px rgba(0,0,0,0.4)';
+      } else {
+        switchButton.style.background = 'linear-gradient(135deg, #f8f9fb 0%, #e3e7ee 100%)';
+        switchButton.style.borderColor = 'rgba(0,0,0,0.08)';
+        switchButton.style.color = '#111';
+        switchButton.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)';
+      }
+    }
 
     // Check for saved theme in localStorage
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('dark-mode');
       document.getElementById('theme-icon').innerText = '☀️';
-      document.getElementById('theme-label').innerText = 'Light Mode';
+      styleButtonForTheme(true);
     }
 
     switchButton.addEventListener('click', function () {
       document.body.classList.toggle('dark-mode');
       if (document.body.classList.contains('dark-mode')) {
         localStorage.setItem('theme', 'dark');
-        document.getElementById('theme-icon').innerText = '☀️';
-        document.getElementById('theme-label').innerText = 'Light Mode';
+        const icon = document.getElementById('theme-icon');
+        icon.innerText = '☀️';
+        icon.classList.add('spin');
+        setTimeout(() => icon.classList.remove('spin'), 450);
+        styleButtonForTheme(true);
       } else {
         localStorage.setItem('theme', 'light');
-        document.getElementById('theme-icon').innerText = '🌙';
-        document.getElementById('theme-label').innerText = 'Dark Mode';
+        const icon = document.getElementById('theme-icon');
+        icon.innerText = '🌙';
+        icon.classList.add('spin');
+        setTimeout(() => icon.classList.remove('spin'), 450);
+        styleButtonForTheme(false);
       }
     });
   }
@@ -52,6 +82,9 @@ document.addEventListener('DOMContentLoaded', function () {
 // Add dark mode styles
 const style = document.createElement('style');
 style.innerHTML = `
+  /* Theme switch icon animation */
+  .theme-icon { font-size: 20px; line-height: 1; display: inline-block; transition: transform .45s ease; }
+  .theme-icon.spin { transform: rotate(360deg); }
   body.dark-mode {
     background-color: #181818 !important;
     color: #f1f1f1 !important;
