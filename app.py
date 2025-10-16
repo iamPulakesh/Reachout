@@ -1,10 +1,19 @@
 from flask import Flask
+import os
+from dotenv import load_dotenv
 from routes.main_routes import main_bp
 from routes.admin_routes import admin_bp
 from routes.image_routes import image_bp
 from db.schema import ensure_schema
 
+load_dotenv()
+
+secret_key = os.getenv('SECRET_KEY')
+if not secret_key:
+    raise RuntimeError('SECRET_KEY is not set')
+
 app = Flask(__name__)
+app.secret_key = secret_key
 app.register_blueprint(main_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(image_bp)
