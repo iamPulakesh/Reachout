@@ -1,27 +1,56 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
 from db.connection import get_db_connection, GOOGLE_MAPS_API_KEY, S3_BASE_URL, s3, BUCKET
 import time
 from datetime import datetime
 import pytz
 import requests
 import phonenumbers
+from utils.twilio_otp import send_otp, verify_otp
 
 main_bp = Blueprint('main', __name__)
+
+# OTP send endpoint
+@main_bp.route('/send-otp', methods=['POST'])
+def send_otp_route():
+    data = request.get_json(silent=True) or {}
+    phone = data.get('phone')
+    if not phone:
+        return jsonify({'success': False, 'error': 'Phone number required'}), 400
+    if send_otp(phone):
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Failed to send OTP'}), 500
+
+# OTP verify endpoint
+@main_bp.route('/verify-otp', methods=['POST'])
+def verify_otp_route():
+    data = request.get_json(silent=True) or {}
+    phone = data.get('phone')
+    otp = data.get('otp')
+    if not phone or not otp:
+        return jsonify({'success': False, 'error': 'Phone and OTP required'}), 400
+    if verify_otp(phone, otp):
+        session[f'otp_verified_{phone}'] = True
+        return jsonify({'success': True})
+    session[f'otp_verified_{phone}'] = False
+    return jsonify({'success': False, 'error': 'Invalid or expired OTP'}), 400
 
 @main_bp.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        phone_e164 = request.form.get('reporter_phone', '')
+        # Check OTP verification status before allowing submission
+        if not session.get(f'otp_verified_{phone_e164}', False):
+            return "OTP not verified. Please verify your phone number before submitting the report.", 400
+
         files = request.files.getlist('attachments')
         reporter_name = request.form.get('reporter_name')
-        # Expecting E.164 from hidden field and dial code from hidden country_code
-        phone_e164 = request.form.get('reporter_phone', '')
         country_code = request.form.get('country_code', '')
-        # Server-side validation with phonenumbers
+    
         try:
             parsed = phonenumbers.parse(phone_e164, None)  # E.164 includes country
             if not phonenumbers.is_valid_number(parsed):
                 return "Invalid phone number.", 400
-            # Optionally normalize to E.164
+            
             reporter_phone = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
         except Exception:
             return "Invalid phone number.", 400
@@ -30,7 +59,6 @@ def index():
         lng = request.form['lng']
         incident_type = request.form['type']
         timestamp = int(time.time())
-        
         if not (1 <= len(files) <= 3):
             return "Please upload 1 to 3 files."
         allowed_exts = {'png', 'jpg', 'jpeg', 'mp4'}
