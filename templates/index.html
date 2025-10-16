@@ -6,6 +6,8 @@
   <title>Reachout</title>
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- intl-tel-input styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/css/intlTelInput.css" />
 
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
@@ -19,6 +21,19 @@
 
     <div class="card p-4">
       <form method="POST" enctype="multipart/form-data" class="row g-3">
+
+        <!-- Reporter details -->
+        <div class="col-md-6">
+          <label for="reporter_name" class="form-label">Your Name</label>
+          <input type="text" class="form-control" id="reporter_name" name="reporter_name" placeholder="Full name" required>
+        </div>
+        <div class="col-md-6">
+          <label for="reporter_phone" class="form-label">Phone Number</label>
+          <input type="tel" class="form-control" id="reporter_phone" name="reporter_phone_display" placeholder="Enter phone number" required>
+          <input type="hidden" id="reporter_phone_e164" name="reporter_phone">
+          <input type="hidden" id="reporter_country_code" name="country_code">
+      
+        </div>
 
         <div class="col-12">
           <label for="type" class="form-label">Incident Type</label>
@@ -66,6 +81,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/intlTelInput.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"></script>
 
   <script>
     let map, marker, autocomplete;
@@ -149,6 +166,36 @@
           break;
         }
       }
+    });
+
+    // Initialize international telephone input
+    const phoneInput = document.getElementById('reporter_phone');
+    const iti = window.intlTelInput(phoneInput, {
+      initialCountry: 'auto',
+      utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js',
+      nationalMode: false,
+      separateDialCode: true,
+      geoIpLookup: async (callback) => {
+        try {
+          const res = await fetch('https://ipapi.co/json');
+          const data = await res.json();
+          callback(data && data.country_code ? data.country_code : 'IN');
+        } catch { callback('IN'); }
+      },
+    });
+
+    // On form submit, place E.164 phone and dial code into hidden inputs
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const isValid = iti.isValidNumber();
+      if (!isValid) {
+        e.preventDefault();
+        alert('Please enter a valid phone number.');
+        return false;
+      }
+      const e164 = iti.getNumber();
+      const dialCode = '+' + (iti.getSelectedCountryData()?.dialCode || '');
+      document.getElementById('reporter_phone_e164').value = e164;
+      document.getElementById('reporter_country_code').value = dialCode;
     });
 
     // Use device GPS to fetch location

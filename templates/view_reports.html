@@ -24,7 +24,7 @@
   <tr{% if row|length > 7 and row[7] == 1 %} class="resolved"{% endif %}>
     <td>{{ loop.index }}</td>
     <td>{{ row[1] }}</td>
-  <td><a href="https://www.google.com/maps/dir/?api=1&destination={{ row[3] }},{{ row[4] }}&travelmode=driving" target="_blank" style="color: #1976d2; text-decoration: underline;">{{ row[2] }}</a></td>
+  <td><a href="https://www.google.com/maps/dir/?api=1&destination={{ row[3] }},{{ row[4] }}&travelmode=driving" target="_blank" class="address-link">{{ row[2] }}</a></td>
     <td>{{ row[3] }}</td>
     <td>{{ row[4] }}</td>
     <td>{{ row[6] }}</td>
