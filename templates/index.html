@@ -32,6 +32,12 @@
           <input type="tel" class="form-control" id="reporter_phone" name="reporter_phone_display" placeholder="Enter phone number" required>
           <input type="hidden" id="reporter_phone_e164" name="reporter_phone">
           <input type="hidden" id="reporter_country_code" name="country_code">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" id="send-otp" style="background: #ffc107; color: #222; border: none; border-radius: 7px; padding: 0.6rem 1.1rem; font-weight: 600; font-size: 1rem; cursor: pointer;">Send OTP</button>
+            <input type="text" id="otp-input" placeholder="Enter OTP" style="width:120px; margin-left:8px;" maxlength="6">
+            <button type="button" id="verify-otp" style="background: #28a745; color: #fff; border: none; border-radius: 7px; padding: 0.6rem 1.1rem; font-weight: 600; font-size: 1rem; cursor: pointer; margin-left:4px;">Verify OTP</button>
+            <span id="otp-status" style="margin-left:8px;font-weight:600;"></span>
+        </div>
       
         </div>
 
@@ -259,5 +265,68 @@
     });
   </script>
   <script src="/static/theme.js"></script>
+  </body>
+  <script>
+    // OTP logic
+    document.getElementById('send-otp').addEventListener('click', async function() {
+      const e164 = window.intlTelInputGlobals.getInstance(document.getElementById('reporter_phone')).getNumber();
+      if (!e164 || e164.length < 8) {
+        document.getElementById('otp-status').textContent = 'Enter valid phone';
+        document.getElementById('otp-status').style.color = 'red';
+        return;
+      }
+      document.getElementById('otp-status').textContent = 'Sending OTP...';
+      document.getElementById('otp-status').style.color = '#222';
+      try {
+        const res = await fetch('/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: e164 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('otp-status').textContent = 'OTP sent!';
+          document.getElementById('otp-status').style.color = 'green';
+        } else {
+          document.getElementById('otp-status').textContent = 'Failed to send OTP';
+          document.getElementById('otp-status').style.color = 'red';
+        }
+      } catch (e) {
+        document.getElementById('otp-status').textContent = 'Error sending OTP';
+        document.getElementById('otp-status').style.color = 'red';
+      }
+    });
+
+    document.getElementById('verify-otp').addEventListener('click', async function() {
+      const e164 = window.intlTelInputGlobals.getInstance(document.getElementById('reporter_phone')).getNumber();
+      const otp = document.getElementById('otp-input').value.trim();
+      if (!e164 || !otp) {
+        document.getElementById('otp-status').textContent = 'Enter phone and OTP';
+        document.getElementById('otp-status').style.color = 'red';
+        return;
+      }
+      document.getElementById('otp-status').textContent = 'Verifying...';
+      document.getElementById('otp-status').style.color = '#222';
+      try {
+        const res = await fetch('/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: e164, otp })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('otp-status').textContent = 'Verified!';
+          document.getElementById('otp-status').style.color = 'green';
+        } else {
+          document.getElementById('otp-status').textContent = 'Invalid OTP';
+          document.getElementById('otp-status').style.color = 'red';
+        }
+      } catch (e) {
+        document.getElementById('otp-status').textContent = 'Error verifying OTP';
+        document.getElementById('otp-status').style.color = 'red';
+      }
+    });
+  </script>
+  </html>
 </body>
 </html>
