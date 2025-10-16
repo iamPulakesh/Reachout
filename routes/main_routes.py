@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from db.connection import get_db_connection, GOOGLE_MAPS_API_KEY, S3_BASE_URL, s3, BUCKET
 import time
 from datetime import datetime
 import pytz
+import requests
 
 main_bp = Blueprint('main', __name__)
 
@@ -58,6 +59,45 @@ def index():
             </html>
         '''
     return render_template('index.html', google_maps_key=GOOGLE_MAPS_API_KEY, s3_base_url=S3_BASE_URL)
+
+@main_bp.route('/fetch-location', methods=['POST'])
+def fetch_location_post():
+    """
+    Reverse geocode coordinates provided by the client (e.g., from browser GPS).
+    Expects JSON body: { "lat": <float>, "lng": <float> }
+    Returns JSON: { address, lat, lng }
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        lat = data.get('lat')
+        lng = data.get('lng')
+        if lat is None or lng is None:
+            return jsonify({"error": "lat and lng are required"}), 400
+        try:
+            flat = float(lat)
+            flng = float(lng)
+        except (TypeError, ValueError):
+            return jsonify({"error": "lat and lng must be numbers"}), 400
+
+        g_url = (
+            "https://maps.googleapis.com/maps/api/geocode/json"
+            f"?latlng={flat},{flng}&key={GOOGLE_MAPS_API_KEY}"
+        )
+        g_res = requests.get(g_url, timeout=7)
+        if g_res.status_code != 200:
+            return jsonify({"error": "Reverse geocoding failed"}), 502
+        g = g_res.json()
+        address = (
+            g.get("results", [{}])[0].get("formatted_address")
+            if g.get("results") else None
+        )
+        return jsonify({
+            "address": address or f"Lat {flat}, Lng {flng}",
+            "lat": flat,
+            "lng": flng,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @main_bp.route('/all-reports')
 def all_reports():
