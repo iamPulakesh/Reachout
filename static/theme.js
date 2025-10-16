@@ -90,11 +90,22 @@ style.innerHTML = `
     color: #f1f1f1 !important;
   }
   body.dark-mode a { color: #8ab4f8 !important; }
+  body.dark-mode a.address-link { color: #8ab4f8 !important; }
   body.dark-mode input, body.dark-mode textarea, body.dark-mode select {
     background: #222 !important;
     color: #f1f1f1 !important;
     border-color: #444 !important;
   }
+  body.dark-mode input::placeholder,
+  body.dark-mode textarea::placeholder {
+    color: #9aa0a6 !important; /* subtle grey used by many dark themes */
+    opacity: 1 !important;     /* Firefox */
+  }
+  /* Legacy/edge variants (harmless if unsupported) */
+  body.dark-mode input::-ms-input-placeholder,
+  body.dark-mode textarea::-ms-input-placeholder { color: #9aa0a6 !important; }
+  body.dark-mode input::-webkit-input-placeholder,
+  body.dark-mode textarea::-webkit-input-placeholder { color: #9aa0a6 !important; }
   body.dark-mode .card, body.dark-mode .container, body.dark-mode .navbar {
     background: #232323 !important;
     color: #f1f1f1 !important;
@@ -115,6 +126,14 @@ style.innerHTML = `
   }
   body.dark-mode tr {
     border-bottom: 1px solid #444 !important;
+  }
+
+  body.dark-mode tr.resolved td {
+    background: #009a08 !important;
+    color: #fff !important;
+  }
+  body.dark-mode tr.resolved:hover td {
+    background: #008307 !important; /* slightly darker on hover */
   }
   body.dark-mode .btn {
     color: #fff !important;

@@ -49,6 +49,13 @@ a {
   color: #1976d2;
   text-decoration: underline;
 }
+.address-link {
+  color: #d32f2f; /* red in light mode */
+  text-decoration: underline;
+}
+.address-link:hover {
+  color: #b71c1c;
+}
 
 /* Button Styles */
 .btn, .btn-view, .btn-resolve, .btn-delete, .btn-submit {
